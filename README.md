@@ -3,7 +3,7 @@ coinremitter sdk for php
 ## installation guide.
 you can install coin remitter plugin using composer in your project using : 
 ```
-composer require coinremitter/coinremitter-php
+composer require coinremitterphp/coinremitter-php
 ```
  
  ## Usage of library : 
