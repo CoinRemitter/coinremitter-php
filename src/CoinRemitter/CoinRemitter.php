@@ -8,6 +8,7 @@ class CoinRemitter {
      * @var string endpoint of api
      */
     private $url='https://coinremitter.com/api/';
+
     /**
      *
      * @var string  coin for which this api is used.
@@ -20,22 +21,26 @@ class CoinRemitter {
     private $param; 
     /**
      * 
-     * @param arraya90 $param pass valid coin detail with api_key,password,coin etc.
+     * @param arraya $param pass valid coin detail with api_key,password,coin etc.
      */
     public function __construct($param=[]) {
         if(isset($param['coin'])){
             $coin = strtoupper($param['coin']);
-        
             $this->coin = $coin;    
+        }else{
+            throw new \Exception('Coin short name is required');
         }
         
         if(isset($param['api_key']) && isset($param['password'])){
-            
             $this->param['api_key']=$param['api_key'];
             $this->param['password']=$param['password'];
-            
+        }else{
+            throw new \Exception('Api key and Password is required');
         }
-        
+
+        if(!function_exists('curl_version')){
+            throw new \Exception("php-curl is not enabled. Install it");
+        }
     }
     /**
      * get balance of specified coin.
@@ -43,9 +48,7 @@ class CoinRemitter {
      */
     public function get_balance(){
         $url = $this->url.$this->coin.'/get-balance';
-
         $res = $this->curl_call($url, $this->param);
-        
         return $res;
     }
     /**
@@ -53,13 +56,10 @@ class CoinRemitter {
      * @param string $label Optional, label assign to new address.
      * @return array() returns array with success or error response.
      */
-    public function get_new_address($label=''){
+    public function get_new_address($param=[]){
         $url = $this->url.$this->coin.'/get-new-address';
-        if($label != ''){
-            $this->param['label'] = $label;
-        }
+        $this->param = array_merge($this->param,$param);
         $res = $this->curl_call($url, $this->param);
-        
         return $res;
     }
     /**
@@ -67,13 +67,10 @@ class CoinRemitter {
      * @param string $address address to verify.
      * @return array() returns array with success or error response.
      */
-    public function validate_address($address){
+    public function validate_address($param){
         $url = $this->url.$this->coin.'/validate-address';
-        
-        $this->param['address'] = $address;
-        
+        $this->param = array_merge($this->param,$param);
         $res = $this->curl_call($url, $this->param);
-        
         return $res;
     }
     /**
@@ -83,17 +80,8 @@ class CoinRemitter {
      */
     public function withdraw($param=[]){
         $url = $this->url.$this->coin.'/withdraw';
-        if(!isset($param['to_address'])){
-            return $this->error_res('to_address is required.');
-        }
-        if(!isset($param['amount'])){
-            return $this->error_res('amount is required.');
-        }
-        $this->param['to_address'] = $param['to_address'];
-        $this->param['amount'] = $param['amount'];
-        
+        $this->param = array_merge($this->param,$param);
         $res = $this->curl_call($url, $this->param);
-        
         return $res;
     }
     /**
@@ -101,13 +89,10 @@ class CoinRemitter {
      * @param string $id pass id to get transaction detail.
      * @return array() returns array with success or error response.
      */
-    public function get_transaction($id){
+    public function get_transaction($param){
         $url = $this->url.$this->coin.'/get-transaction';
-        
-        $this->param['id'] = $id;
-        
+        $this->param = array_merge($this->param,$param);
         $res = $this->curl_call($url, $this->param);
-        
         return $res;
     }
     /**
@@ -117,33 +102,33 @@ class CoinRemitter {
      */
     public function create_invoice($param=[]){
         $url = $this->url.$this->coin.'/create-invoice';
-        
-        if(!isset($param['amount'])){
-            return $this->error_res('amount is required.');
-        }
-        if(!isset($param['notify_url'])){
-            return $this->error_res('notify_url is required.');
-        }
-        $this->param['amount'] = $param['amount'];
-        $this->param['notify_url'] = $param['notify_url'];
-        
-        if(isset($param['name'])){
-            $this->param['name'] = $param['name'];
-        }
-        if(isset($param['currency'])){
-            $this->param['currency'] = $param['currency'];
-        }
-        if(isset($param['expire_hours'])){
-            $this->param['expire_hours'] = $param['expire_hours'];
-        }
-        if(isset($param['description'])){
-            $this->param['description'] = $param['description'];
-        }
-        
+        $this->param = array_merge($this->param,$param);
         $res = $this->curl_call($url, $this->param);
-        
         return $res;
     }
+
+    /**
+     * get invoice details of given invoice id.
+     * @param string $id pass id to get invoice detail.
+     * @return array() returns array with success or error response.
+     */
+    public function get_invoice($param){
+        $url = $this->url.$this->coin.'/get-invoice';
+        $this->param = array_merge($this->param,$param);
+        $res = $this->curl_call($url, $this->param);
+        return $res;
+    }
+
+    /**
+     * get all coin usd rate.
+     * @return array() returns array with success or error response.
+     */
+    public function get_coin_rate(){
+        $url = $this->url.'get-coin-rate';
+        $res = $this->curl_call($url, $this->param);
+        return $res;
+    }
+
     /**
      * 
      * @param string $url
@@ -158,39 +143,39 @@ class CoinRemitter {
         
         $header[] = "Accept: application/json";
 	
-	$ch = curl_init();
-	curl_setopt($ch, CURLOPT_URL, $url);
-	curl_setopt($ch, CURLOPT_HTTPHEADER, $header);
-	curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
-	curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false);
+    	$ch = curl_init();
+    	curl_setopt($ch, CURLOPT_URL, $url);
+    	curl_setopt($ch, CURLOPT_HTTPHEADER, $header);
+    	curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+    	curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false);
 
-	curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+    	curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
 
-        curl_setopt ($ch, CURLOPT_CONNECTTIMEOUT, 20);
-        curl_setopt( $ch, CURLOPT_TIMEOUT, 20);
-        
-	if ($post){
-            curl_setopt($ch, CURLOPT_POST, true);
-            curl_setopt($ch, CURLOPT_POSTFIELDS, $post);
-	}
+            curl_setopt ($ch, CURLOPT_CONNECTTIMEOUT, 20);
+            curl_setopt( $ch, CURLOPT_TIMEOUT, 20);
+            
+    	if ($post){
+                curl_setopt($ch, CURLOPT_POST, true);
+                curl_setopt($ch, CURLOPT_POSTFIELDS, $post);
+    	}
 
-	curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+    	curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
 
-	$rs = curl_exec($ch);
-        $info =  curl_getinfo($ch);
+    	$rs = curl_exec($ch);
+            $info =  curl_getinfo($ch);
 
 
-        
-	if(empty($rs)){
-            curl_close($ch);
-            return $this->error_res();
-	}
-	curl_close($ch);
-        
-        $decode = json_decode($rs,true);
-        
-        
-	return $decode;
+            
+    	if(empty($rs)){
+                curl_close($ch);
+                return $this->error_res();
+    	}
+    	curl_close($ch);
+            
+            $decode = json_decode($rs,true);
+            
+            
+    	return $decode;
     }
     /**
      * 
