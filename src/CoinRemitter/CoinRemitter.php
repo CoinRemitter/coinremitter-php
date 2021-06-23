@@ -8,7 +8,16 @@ class CoinRemitter {
      * @var string endpoint of api
      */
     private $url='https://coinremitter.com/api/';
-
+     /**
+     * 
+     * @var string of api version
+     */
+    private $version = 'v3';
+    /**
+     * 
+     * @var string of api version
+     */
+    private $plugin_version = '0.1.3';
     /**
      *
      * @var string  coin for which this api is used.
@@ -47,7 +56,7 @@ class CoinRemitter {
      * @return array() returns array with success or error response.
      */
     public function get_balance(){
-        $url = $this->url.$this->coin.'/get-balance';
+        $url = $this->url.$this->version.'/'.$this->coin.'/get-balance';
         $res = $this->curl_call($url, $this->param);
         return $res;
     }
@@ -57,7 +66,7 @@ class CoinRemitter {
      * @return array() returns array with success or error response.
      */
     public function get_new_address($param=[]){
-        $url = $this->url.$this->coin.'/get-new-address';
+        $url = $this->url.$this->version.'/'.$this->coin.'/get-new-address';
         $this->param = array_merge($this->param,$param);
         $res = $this->curl_call($url, $this->param);
         return $res;
@@ -68,7 +77,7 @@ class CoinRemitter {
      * @return array() returns array with success or error response.
      */
     public function validate_address($param){
-        $url = $this->url.$this->coin.'/validate-address';
+        $url = $this->url.$this->version.'/'.$this->coin.'/validate-address';
         $this->param = array_merge($this->param,$param);
         $res = $this->curl_call($url, $this->param);
         return $res;
@@ -79,7 +88,7 @@ class CoinRemitter {
      * @return array() returns array with success or error response.
      */
     public function withdraw($param=[]){
-        $url = $this->url.$this->coin.'/withdraw';
+        $url = $this->url.$this->version.'/'.$this->coin.'/withdraw';
         $this->param = array_merge($this->param,$param);
         $res = $this->curl_call($url, $this->param);
         return $res;
@@ -90,7 +99,18 @@ class CoinRemitter {
      * @return array() returns array with success or error response.
      */
     public function get_transaction($param){
-        $url = $this->url.$this->coin.'/get-transaction';
+        $url = $this->url.$this->version.'/'.$this->coin.'/get-transaction';
+        $this->param = array_merge($this->param,$param);
+        $res = $this->curl_call($url, $this->param);
+        return $res;
+    }
+    /**
+     * get transactions details by given address.
+     * @param string $address pass address to get all realted transactions.
+     * @return array() returns array with success or error response.
+     */
+    public function get_transaction_by_address($param){
+        $url = $this->url.$this->version.'/'.$this->coin.'/get-transaction-by-address';
         $this->param = array_merge($this->param,$param);
         $res = $this->curl_call($url, $this->param);
         return $res;
@@ -101,7 +121,7 @@ class CoinRemitter {
      * @return array() returns array with success or error response.
      */
     public function create_invoice($param=[]){
-        $url = $this->url.$this->coin.'/create-invoice';
+        $url = $this->url.$this->version.'/'.$this->coin.'/create-invoice';
         $this->param = array_merge($this->param,$param);
         $res = $this->curl_call($url, $this->param);
         return $res;
@@ -113,7 +133,19 @@ class CoinRemitter {
      * @return array() returns array with success or error response.
      */
     public function get_invoice($param){
-        $url = $this->url.$this->coin.'/get-invoice';
+        $url = $this->url.$this->version.'/'.$this->coin.'/get-invoice';
+        $this->param = array_merge($this->param,$param);
+        $res = $this->curl_call($url, $this->param);
+        return $res;
+    }
+
+    /**
+     * Get Fiat to Crypto rate.
+     * @param array() pass fiat_symbol and fiat_amount as key.
+     * @return array() returns array with success or error response.
+     */
+    public function get_fiat_to_crypto_rate($param){
+        $url = $this->url.$this->version.'/'.$this->coin.'/get-fiat-to-crypto-rate';
         $this->param = array_merge($this->param,$param);
         $res = $this->curl_call($url, $this->param);
         return $res;
@@ -124,7 +156,7 @@ class CoinRemitter {
      * @return array() returns array with success or error response.
      */
     public function get_coin_rate(){
-        $url = $this->url.'get-coin-rate';
+        $url = $this->url.$this->version.'/'.$this->coin.'/get-coin-rate';
         $res = $this->curl_call($url, $this->param);
         return $res;
     }
@@ -141,41 +173,36 @@ class CoinRemitter {
             return $this->error_res('Please set API_KEY and PASSWORD for '.$this->coin);
         }
         
-        $header[] = "Accept: application/json";
-	
-    	$ch = curl_init();
-    	curl_setopt($ch, CURLOPT_URL, $url);
-    	curl_setopt($ch, CURLOPT_HTTPHEADER, $header);
-    	curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
-    	curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false);
+        $userAgent = 'CR@' . $this->version . ',php plugin@'.$this->plugin_version; // 0.1.3
 
-    	curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        $postStr = http_build_query($post);
+        $options = array(
+            'http' =>
+                array(
+                    'method'  => "POST", //We are using the POST HTTP method.
+                    'header' => "Content-type: application/x-www-form-urlencoded\r\n"."User-agent:".$userAgent,
+                    'content' => $postStr //Our URL-encoded query string.
+                ),
+               
+        );
 
-            curl_setopt ($ch, CURLOPT_CONNECTTIMEOUT, 20);
-            curl_setopt( $ch, CURLOPT_TIMEOUT, 20);
-            
-    	if ($post){
-                curl_setopt($ch, CURLOPT_POST, true);
-                curl_setopt($ch, CURLOPT_POSTFIELDS, $post);
-    	}
-
-    	curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-
-    	$rs = curl_exec($ch);
-            $info =  curl_getinfo($ch);
-
-
-            
-    	if(empty($rs)){
-                curl_close($ch);
-                return $this->error_res();
-    	}
-    	curl_close($ch);
-            
-            $decode = json_decode($rs,true);
-            
-            
-    	return $decode;
+        $streamContext  = stream_context_create($options);
+        //Use PHP's file_get_contents function to carry out the request.
+        //We pass the $streamContext variable in as a third parameter.
+        $result = file_get_contents($url, false, $streamContext);
+        //If $result is FALSE, then the request has failed.
+        if($result === false){
+            //If the request failed, throw an Exception containing
+            //the error.
+            /*$error = error_get_last();
+            throw new Exception('POST request failed: ' . $error['message']);*/
+            return $this->error_res();
+        }
+        //If everything went OK, return the response.
+        if(!is_array($result)){
+            $result = json_decode($result,true);
+        }
+        return $result;
     }
     /**
      * 
@@ -193,4 +220,6 @@ class CoinRemitter {
         
         return $res;
     }
+
 }
+
