@@ -1,5 +1,5 @@
 # coinremitter-php
-coinremitter sdk for php
+Official PHP SDK for coinremitter cryptocurrency payment gateway
 ## installation guide.
 you can install coinremitter plugin using composer in your project using : 
 ```
