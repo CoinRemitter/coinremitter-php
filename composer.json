@@ -1,6 +1,6 @@
 {
     "name": "coinremitterphp/coinremitter-php",
-    "description": "Official PHP SDK (Dev) for coinremitter cryptocurrency payment gateway",
+    "description": "Official PHP SDK for coinremitter cryptocurrency payment gateway",
     "type": "library",
     "keywords": ["coinremitter", "php", "cryptocurrency", "payment gateway", "api"],
     "homepage": "https://coinremitter.com/",
