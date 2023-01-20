@@ -17,7 +17,7 @@ class CoinRemitter {
      * 
      * @var string of api version
      */
-    private $plugin_version = '0.1.3';
+    private $plugin_version = '0.1.4';
     /**
      *
      * @var string  coin for which this api is used.
@@ -156,7 +156,7 @@ class CoinRemitter {
      * @return array() returns array with success or error response.
      */
     public function get_coin_rate(){
-        $url = $this->url.$this->version.'/'.$this->coin.'/get-coin-rate';
+        $url = $this->url.$this->version.'/'.'get-coin-rate';
         $res = $this->curl_call($url, $this->param);
         return $res;
     }
@@ -222,4 +222,3 @@ class CoinRemitter {
     }
 
 }
-
