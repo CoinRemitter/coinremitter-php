@@ -17,7 +17,7 @@ class CoinRemitter {
      * 
      * @var string of api version
      */
-    private $plugin_version = '0.1.4';
+    private $plugin_version = '0.1.5';
     /**
      *
      * @var string  coin for which this api is used.
@@ -67,8 +67,8 @@ class CoinRemitter {
      */
     public function get_new_address($param=[]){
         $url = $this->url.$this->version.'/'.$this->coin.'/get-new-address';
-        $this->param = array_merge($this->param,$param);
-        $res = $this->curl_call($url, $this->param);
+        $param = array_merge($this->param,$param);
+        $res = $this->curl_call($url, $param);
         return $res;
     }
     /**
@@ -78,8 +78,8 @@ class CoinRemitter {
      */
     public function validate_address($param){
         $url = $this->url.$this->version.'/'.$this->coin.'/validate-address';
-        $this->param = array_merge($this->param,$param);
-        $res = $this->curl_call($url, $this->param);
+        $param = array_merge($this->param,$param);
+        $res = $this->curl_call($url, $param);
         return $res;
     }
     /**
@@ -89,8 +89,8 @@ class CoinRemitter {
      */
     public function withdraw($param=[]){
         $url = $this->url.$this->version.'/'.$this->coin.'/withdraw';
-        $this->param = array_merge($this->param,$param);
-        $res = $this->curl_call($url, $this->param);
+        $param = array_merge($this->param,$param);
+        $res = $this->curl_call($url, $param);
         return $res;
     }
     /**
@@ -100,8 +100,8 @@ class CoinRemitter {
      */
     public function get_transaction($param){
         $url = $this->url.$this->version.'/'.$this->coin.'/get-transaction';
-        $this->param = array_merge($this->param,$param);
-        $res = $this->curl_call($url, $this->param);
+        $param = array_merge($this->param,$param);
+        $res = $this->curl_call($url, $param);
         return $res;
     }
     /**
@@ -111,8 +111,8 @@ class CoinRemitter {
      */
     public function get_transaction_by_address($param){
         $url = $this->url.$this->version.'/'.$this->coin.'/get-transaction-by-address';
-        $this->param = array_merge($this->param,$param);
-        $res = $this->curl_call($url, $this->param);
+        $param = array_merge($this->param,$param);
+        $res = $this->curl_call($url, $param);
         return $res;
     }
     /**
@@ -122,8 +122,8 @@ class CoinRemitter {
      */
     public function create_invoice($param=[]){
         $url = $this->url.$this->version.'/'.$this->coin.'/create-invoice';
-        $this->param = array_merge($this->param,$param);
-        $res = $this->curl_call($url, $this->param);
+        $param = array_merge($this->param,$param);
+        $res = $this->curl_call($url, $param);
         return $res;
     }
 
@@ -134,8 +134,8 @@ class CoinRemitter {
      */
     public function get_invoice($param){
         $url = $this->url.$this->version.'/'.$this->coin.'/get-invoice';
-        $this->param = array_merge($this->param,$param);
-        $res = $this->curl_call($url, $this->param);
+        $param = array_merge($this->param,$param);
+        $res = $this->curl_call($url, $param);
         return $res;
     }
 
@@ -146,8 +146,8 @@ class CoinRemitter {
      */
     public function get_fiat_to_crypto_rate($param){
         $url = $this->url.$this->version.'/'.$this->coin.'/get-fiat-to-crypto-rate';
-        $this->param = array_merge($this->param,$param);
-        $res = $this->curl_call($url, $this->param);
+        $param = array_merge($this->param,$param);
+        $res = $this->curl_call($url, $param);
         return $res;
     }
 
@@ -156,7 +156,7 @@ class CoinRemitter {
      * @return array() returns array with success or error response.
      */
     public function get_coin_rate(){
-        $url = $this->url.$this->version.'/'.'get-coin-rate';
+        $url = $this->url.'get-coin-rate';
         $res = $this->curl_call($url, $this->param);
         return $res;
     }
@@ -183,8 +183,7 @@ class CoinRemitter {
                     'header' => "Content-type: application/x-www-form-urlencoded\r\n"."User-agent:".$userAgent,
                     'content' => $postStr //Our URL-encoded query string.
                 ),
-               
-        );
+            );
 
         $streamContext  = stream_context_create($options);
         //Use PHP's file_get_contents function to carry out the request.

@@ -256,7 +256,7 @@ The dates received in the response are in the UTC format.
 You can create an invoice using the following method:
 ```
 $param = [
-    'amount'=>'1',      //required.
+    'amount'=>'15', //required.
     'notify_url'=>'https://yourdomain.com/notify-url', //required,you will receive notification on this url,
     'name'=>'my-invoice',//optional,
     'currency'=>'USD',//optional,
